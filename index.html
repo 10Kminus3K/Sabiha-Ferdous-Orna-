@@ -3,23 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Will You Be My Wifey?</title>
-
-  <!-- Disable spoiler previews: force a tiny blank OG image -->
-  <meta property="og:title" content=" " />
-  <meta property="og:description" content=" " />
+  <!-- Anti-spoiler previews: force a tiny blank image + neutral text -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://10kminus3k.github.io/Sabiha-Ferdous-Orna-/" />
+  <meta property="og:title" content="Open this 🙂" />
+  <meta property="og:description" content=" " />
   <meta property="og:image" content="https://10kminus3k.github.io/Sabiha-Ferdous-Orna-/og.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1" />
   <meta property="og:image:height" content="1" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content=" " />
+  <meta name="twitter:title" content="Open this 🙂" />
   <meta name="twitter:description" content=" " />
   <meta name="twitter:image" content="https://10kminus3k.github.io/Sabiha-Ferdous-Orna-/og.png" />
 
+  <title>Open this 🙂</title>
 
   <style>
     * {
@@ -139,6 +137,7 @@
   <div class="card" id="questionCard">
     <div class="cat">🐱💖</div>
     <h1>Sabiha, Will you be my Wifeyy??</h1>
+    <div id="gifLoading" style="font-size:12px;color:#777;margin-bottom:10px;">Loading… 💞</div>
 
     <div class="buttons">
       <button id="yes">Yes</button>
@@ -152,9 +151,11 @@
   <div class="card yay" id="yayCard">
     <h1>I love you sooo muchh my babygirl😘💞</h1>
     <img
+      id="yayGif"
       data-src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDdhMnMweW83eWhhd285bzh5ajdvYzBsdGx1cG9pM3VnY3psbTRmaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5j4MSItGgMlOnFzIK4/giphy.gif"
-      src=""
+      src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
       alt="Celebration"
+      style="display:none;"
     />
   </div>
 
@@ -164,6 +165,18 @@
     const yesBtn = document.getElementById("yes");
     const questionCard = document.getElementById("questionCard");
     const yayCard = document.getElementById("yayCard");
+
+    // Hide the loading text once the GIF loads
+    const _gif = document.getElementById("yayGif");
+    if (_gif) {
+      _gif.addEventListener("load", () => {
+        const l = document.getElementById("gifLoading");
+        if (l) l.style.display = "none";
+      });
+    }
+
+    // After the page opens, set the real title (previews won't execute this)
+    document.title = "Will You Be My Wifey?";
 
     // Random position inside the button area
     function moveNoButtonRandom() {
@@ -321,14 +334,19 @@
       questionCard.style.display = "none";
       yayCard.style.display = "block";
 
-      // Lazy-load the GIF only after YES (prevents link previews from grabbing it)
-      const gif = yayCard.querySelector("img");
-      if (gif && !gif.src) {
-        gif.src = gif.getAttribute("data-src") || "";
+      // Load the GIF only after YES (prevents link previews from grabbing it)
+      const gif = document.getElementById("yayGif");
+      if (gif) {
+        const realSrc = gif.getAttribute("data-src") || "";
+        if (realSrc) {
+          gif.style.display = "block";
+          gif.src = realSrc;
+        }
       }
-    });
 
-    // Initial position
+      // Set the real title after the page is opened (previews won't run JS)
+      document.title = "Will You Be My Wifey?";
+    });// Initial position
     moveNoButtonRandom();
 
     /* CREATE FLOATING HEARTS */
