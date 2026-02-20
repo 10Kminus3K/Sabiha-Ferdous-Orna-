@@ -4,19 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Will You Be My Wifey?</title>
-<meta name="robots" content="noindex, nofollow" />
 
-<!-- Prevent rich previews -->
-<meta property="og:title" content="" />
-<meta property="og:description" content="" />
-<meta property="og:image" content="" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://10kminus3k.github.io/Sabiha-Ferdous-Orna-/" />
+  <!-- Disable spoiler previews: force a tiny blank OG image -->
+  <meta property="og:title" content=" " />
+  <meta property="og:description" content=" " />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://10kminus3k.github.io/Sabiha-Ferdous-Orna-/" />
+  <meta property="og:image" content="https://10kminus3k.github.io/Sabiha-Ferdous-Orna-/og.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1" />
+  <meta property="og:image:height" content="1" />
 
-<meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="" />
-<meta name="twitter:description" content="" />
-<meta name="twitter:image" content="" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content=" " />
+  <meta name="twitter:description" content=" " />
+  <meta name="twitter:image" content="https://10kminus3k.github.io/Sabiha-Ferdous-Orna-/og.png" />
+
+
   <style>
     * {
       box-sizing: border-box;
@@ -148,7 +152,8 @@
   <div class="card yay" id="yayCard">
     <h1>I love you sooo muchh my babygirl😘💞</h1>
     <img
-      src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDdhMnMweW83eWhhd285bzh5ajdvYzBsdGx1cG9pM3VnY3psbTRmaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5j4MSItGgMlOnFzIK4/giphy.gif"
+      data-src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDdhMnMweW83eWhhd285bzh5ajdvYzBsdGx1cG9pM3VnY3psbTRmaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5j4MSItGgMlOnFzIK4/giphy.gif"
+      src=""
       alt="Celebration"
     />
   </div>
@@ -315,6 +320,12 @@
     yesBtn.addEventListener("click", () => {
       questionCard.style.display = "none";
       yayCard.style.display = "block";
+
+      // Lazy-load the GIF only after YES (prevents link previews from grabbing it)
+      const gif = yayCard.querySelector("img");
+      if (gif && !gif.src) {
+        gif.src = gif.getAttribute("data-src") || "";
+      }
     });
 
     // Initial position
