@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Will You Be My Wifey?</title>
+<meta name="robots" content="noindex, nofollow" />
+
+<!-- Prevent rich previews -->
+<meta property="og:title" content="" />
+<meta property="og:description" content="" />
+<meta property="og:image" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://10kminus3k.github.io/Sabiha-Ferdous-Orna-/" />
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="" />
+<meta name="twitter:description" content="" />
+<meta name="twitter:image" content="" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Arial Rounded MT Bold", "Comic Sans MS", cursive;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ffd1dc, #ffe6eb);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* FLOATING HEARTS */
+    .heart {
+      position: absolute;
+      bottom: -50px;
+      font-size: 24px;
+      animation: floatUp linear infinite;
+      opacity: 0.8;
+    }
+
+    @keyframes floatUp {
+      from {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-110vh) scale(1.3);
+        opacity: 0;
+      }
+    }
+
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 360px;
+      padding: 30px 20px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      position: relative;
+      z-index: 2;
+    }
+
+    .cat {
+      font-size: 56px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 25px;
+      line-height: 1.4;
+    }
+
+    .buttons {
+      position: relative;
+      height: 140px;
+      touch-action: none; /* better on phones */
+    }
+
+    button {
+      padding: 12px 26px;
+      font-size: 17px;
+      border-radius: 25px;
+      border: none;
+      cursor: pointer;
+    }
+
+    #yes {
+      background: #ff4d6d;
+      color: white;
+    }
+
+    #no {
+      position: absolute;
+      background: #f1f1f1;
+      color: #333;
+      transition: left 0.06s linear, top 0.06s linear; /* super fast teleport */
+      will-change: left, top;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .hint {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .yay {
+      display: none;
+    }
+
+    .yay h1 {
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+
+    .yay img {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- QUESTION CARD -->
+  <div class="card" id="questionCard">
+    <div class="cat">🐱💖</div>
+    <h1>Sabiha, Will you be my Wifeyy??</h1>
+
+    <div class="buttons">
+      <button id="yes">Yes</button>
+      <button id="no">No</button>
+    </div>
+
+    <div class="hint">*No is feeling shy 😳*</div>
+  </div>
+
+  <!-- YAY CARD -->
+  <div class="card yay" id="yayCard">
+    <h1>I love you sooo muchh my babygirl😘💞</h1>
+    <img
+      src="https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDdhMnMweW83eWhhd285bzh5ajdvYzBsdGx1cG9pM3VnY3psbTRmaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5j4MSItGgMlOnFzIK4/giphy.gif"
+      alt="Celebration"
+    />
+  </div>
+
+  <script>
+    const noBtn = document.getElementById("no");
+    const buttonsArea = document.querySelector(".buttons");
+    const yesBtn = document.getElementById("yes");
+    const questionCard = document.getElementById("questionCard");
+    const yayCard = document.getElementById("yayCard");
+
+    // Random position inside the button area
+    function moveNoButtonRandom() {
+      const areaRect = buttonsArea.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const maxX = Math.max(0, areaRect.width - btnRect.width);
+      const maxY = Math.max(0, areaRect.height - btnRect.height);
+
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+    }
+
+    // ===== Universal "teleport fast" mode (phone + PC + tablet) =====
+    // Tweak these if needed:
+    const SPEED_MOUSE_MS = 35;   // smaller = faster on PC
+    const SPEED_TOUCH_MS = 12;   // smaller = faster on phones
+    const DIST_MOUSE = 140;      // px: how close the cursor can get
+    const DIST_TOUCH = 280;      // px: how close a finger can get
+    const CANDIDATES = 10;       // higher = harder
+
+    let lastTeleport = 0;
+    let lastPointer = { x: null, y: null, type: "mouse" };
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function dist(ax, ay, bx, by) {
+      return Math.hypot(ax - bx, ay - by);
+    }
+
+    // Pick a spot that is far from the pointer and not on top of YES
+    function bestFarPosition(pointerX, pointerY) {
+      const areaRect = buttonsArea.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const yesRect = yesBtn.getBoundingClientRect();
+
+      const maxX = Math.max(0, areaRect.width - btnRect.width);
+      const maxY = Math.max(0, areaRect.height - btnRect.height);
+
+      if (maxX === 0 && maxY === 0) return { x: 0, y: 0 };
+
+      const px = clamp(pointerX - areaRect.left, 0, areaRect.width);
+      const py = clamp(pointerY - areaRect.top, 0, areaRect.height);
+
+      const ycx = (yesRect.left - areaRect.left) + yesRect.width / 2;
+      const ycy = (yesRect.top - areaRect.top) + yesRect.height / 2;
+
+      let best = { x: Math.random() * maxX, y: Math.random() * maxY, score: -1 };
+
+      for (let i = 0; i < CANDIDATES; i++) {
+        const x = Math.random() * maxX;
+        const y = Math.random() * maxY;
+
+        const cx = x + btnRect.width / 2;
+        const cy = y + btnRect.height / 2;
+
+        const score = dist(cx, cy, px, py) + dist(cx, cy, ycx, ycy) * 0.6;
+
+        if (score > best.score) best = { x, y, score };
+      }
+
+      return best;
+    }
+
+    function teleportNo(pointerX, pointerY) {
+      const pos = bestFarPosition(pointerX, pointerY);
+      noBtn.style.left = pos.x + "px";
+      noBtn.style.top = pos.y + "px";
+    }
+
+    function maybeTeleport(pointerX, pointerY, pointerType) {
+      const now = Date.now();
+      const isTouch = pointerType === "touch";
+      const speed = isTouch ? SPEED_TOUCH_MS : SPEED_MOUSE_MS;
+      const threshold = isTouch ? DIST_TOUCH : DIST_MOUSE;
+
+      if (now - lastTeleport < speed) return;
+
+      const areaRect = buttonsArea.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const px = pointerX - areaRect.left;
+      const py = pointerY - areaRect.top;
+
+      const bx = (btnRect.left - areaRect.left) + btnRect.width / 2;
+      const by = (btnRect.top - areaRect.top) + btnRect.height / 2;
+
+      const d = Math.hypot(px - bx, py - by);
+
+      if (d < threshold) {
+        lastTeleport = now;
+        teleportNo(pointerX, pointerY);
+      }
+    }
+
+    // Modern: Pointer Events (works on most phones + PCs)
+    if (window.PointerEvent) {
+      buttonsArea.addEventListener("pointermove", (e) => {
+        lastPointer = { x: e.clientX, y: e.clientY, type: e.pointerType || "mouse" };
+        maybeTeleport(e.clientX, e.clientY, e.pointerType || "mouse");
+      });
+
+      buttonsArea.addEventListener("pointerdown", (e) => {
+        lastPointer = { x: e.clientX, y: e.clientY, type: e.pointerType || "mouse" };
+        maybeTeleport(e.clientX, e.clientY, e.pointerType || "mouse");
+      });
+
+      // If they try to tap/click NO directly: instant teleport
+      noBtn.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        teleportNo(e.clientX, e.clientY);
+      });
+
+      // Desktop hover edge-case fallback
+      noBtn.addEventListener("mouseenter", () => {
+        if (lastPointer.x != null && lastPointer.y != null) {
+          teleportNo(lastPointer.x, lastPointer.y);
+        } else {
+          moveNoButtonRandom();
+        }
+      });
+    } else {
+      // Older fallback
+      buttonsArea.addEventListener("mousemove", (e) => {
+        lastPointer = { x: e.clientX, y: e.clientY, type: "mouse" };
+        maybeTeleport(e.clientX, e.clientY, "mouse");
+      });
+
+      buttonsArea.addEventListener("touchmove", (e) => {
+        const t = e.touches && e.touches[0];
+        if (!t) return;
+        e.preventDefault();
+        lastPointer = { x: t.clientX, y: t.clientY, type: "touch" };
+        maybeTeleport(t.clientX, t.clientY, "touch");
+      }, { passive: false });
+
+      noBtn.addEventListener("touchstart", (e) => {
+        const t = e.touches && e.touches[0];
+        if (!t) return;
+        e.preventDefault();
+        teleportNo(t.clientX, t.clientY);
+      }, { passive: false });
+
+      noBtn.addEventListener("mouseenter", moveNoButtonRandom);
+    }
+
+    // YES shows the love screen
+    yesBtn.addEventListener("click", () => {
+      questionCard.style.display = "none";
+      yayCard.style.display = "block";
+    });
+
+    // Initial position
+    moveNoButtonRandom();
+
+    /* CREATE FLOATING HEARTS */
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.innerText = Math.random() > 0.5 ? "💞" : "💖";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.animationDuration = 5 + Math.random() * 5 + "s";
+      heart.style.fontSize = 18 + Math.random() * 20 + "px";
+
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 10000);
+    }
+
+    setInterval(createHeart, 500);
+  </script>
+
+</body>
+</html>
